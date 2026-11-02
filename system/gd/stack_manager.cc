@@ -45,7 +45,10 @@ void StackManager::StartUp(ModuleList* modules, Thread* stack_thread) {
   handler_->Post(common::BindOnce(&StackManager::handle_start_up, common::Unretained(this), modules, stack_thread,
                                   std::move(promise)));
 
-  auto init_status = future.wait_for(std::chrono::seconds(3));
+  // C6: 3s is too tight on this SoC -- Gd stack start-up occasionally exceeds it
+  // (blocked in Btaa module's first binder call), which aborts the whole bluetooth
+  // process and triggers a 4-5x crash loop. Relax to 15s.
+  auto init_status = future.wait_for(std::chrono::seconds(15));
 
   WakelockManager::Get().Release();
 

@@ -75,12 +75,17 @@ static const tA2DP_LDAC_CIE a2dp_ldac_sink_caps = {
      BTAV_A2DP_CODEC_BITS_PER_SAMPLE_32)};
 
 /* Default LDAC codec configuration */
+// CB-C6 (Unisoc UD710): 锁 96000Hz / 24bit / 立体声，质量档在 encoder 里锁 MID(660kbps)。
+// 24bit 是 660kbps 的正确搭配：96k/32bit 的原始码率约 6.1Mbps，压到 660 是 9:1，
+// 编码器保不住会丢帧 -> 卡顿。改在 native 默认层，避免运行时用 app_process 再设一次
+// （那会造成两次 codec 重协商，切播放器时尤其明显）。
+// 采样率实测一直恒为 96k（88.2/48/44.1 全被忽略），只有位深和质量档可切。
 static const tA2DP_LDAC_CIE a2dp_ldac_default_config = {
     A2DP_LDAC_VENDOR_ID,                // vendorId
     A2DP_LDAC_CODEC_ID,                 // codecId
     A2DP_LDAC_SAMPLING_FREQ_96000,      // sampleRate
     A2DP_LDAC_CHANNEL_MODE_STEREO,      // channelMode
-    BTAV_A2DP_CODEC_BITS_PER_SAMPLE_32  // bits_per_sample
+    BTAV_A2DP_CODEC_BITS_PER_SAMPLE_24  // bits_per_sample
 };
 
 static const tA2DP_ENCODER_INTERFACE a2dp_encoder_interface_ldac = {

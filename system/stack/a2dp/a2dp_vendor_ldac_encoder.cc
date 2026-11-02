@@ -227,7 +227,8 @@ static void a2dp_vendor_ldac_encoder_update(A2dpCodecConfig* a2dp_codec_config,
              quality_mode_index_to_name(p_encoder_params->quality_mode_index)
                  .c_str());
   } else {
-    p_encoder_params->quality_mode_index = A2DP_LDAC_QUALITY_ABR;
+    // CB-C6: 用户要求把播放质量锁在 660kbps（MID），不再走 ABR 自适应
+    p_encoder_params->quality_mode_index = A2DP_LDAC_QUALITY_MID;
     LOG_INFO("%s: setting quality mode to default %s", __func__,
              quality_mode_index_to_name(p_encoder_params->quality_mode_index)
                  .c_str());
